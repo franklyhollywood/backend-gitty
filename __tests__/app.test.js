@@ -2,8 +2,15 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
+const UserService = require('../lib/services/UserService.js');
 
+const agent = request.agent(app);
 jest.mock('../lib/utils/user');
+
+const mockUser = {
+  email: 'email@email.com',
+  password: '2',
+};
 
 describe('backend-gitty routes', () => {
   beforeEach(() => {
@@ -18,23 +25,59 @@ describe('backend-gitty routes', () => {
     const req = await request(app).get('/api/v1/users/login');
 
     expect(req.header.location).toMatch(
-      /https:\/\/github.com\/login\/oauth\/authorize\?client_id=[\w\d]+&redirect_uri=http:\/\/localhost:7890\/api\/v1\/github\/login\/callback&scope=user/i
+      /https:\/\/github.com\/login\/oauth\/authorize\?client_id=[\w\d]+&redirect_uri=http:\/\/localhost:7890\/api\/v1\/users\/login\/callback&scope=user/i
     );
   });
 
-  it.only('should login and redirect users to /api/v1/github/dashboard', async () => {
+  it('should login and redirect users to /api/v1/users/dashboard', async () => {
     const req = await request
       .agent(app)
-      .get('/api/v1/github/login/callback?code=42')
+      .get('/api/v1/users/login/callback?code=42')
       .redirects(1);
 
     expect(req.body).toEqual({
       id: expect.any(String),
-      username: 'NotRealuser',
+      username: 'fake_login',
       email: 'email@email.com',
       avatar: expect.any(String),
       iat: expect.any(Number),
       exp: expect.any(Number),
     });
+  });
+
+  it('logs a user out', async () => {
+    const res = await agent.delete('/api/v1/users/sessions').send(mockUser);
+
+    expect(res.body).toEqual({
+      success: true,
+      message: 'Signed out successfully!',
+    });
+  });
+
+  it('creates a post only when a user is logged in', async () => {
+    await agent.get('/api/v1/users/login/callback?code=42').redirects(1);
+    const newPost = await agent
+      .post('/api/v1/posts')
+      .send({ post: 'This is a post' });
+
+    expect(newPost.body).toEqual({
+      id: expect.any(String),
+      userId: expect.any(String),
+      post: 'This is a post',
+    });
+  });
+
+  it('Lists all users posts', async () => {
+    await agent.get('/api/v1/users/login/callback?code=42').redirects(1);
+    await agent.post('/api/v1/posts').send({ post: 'This is a post' });
+    const res = await agent.get('/api/v1/posts');
+
+    expect(res.body).toEqual([
+      {
+        id: expect.any(String),
+        userId: expect.any(String),
+        post: 'This is a post',
+      },
+    ]);
   });
 });
