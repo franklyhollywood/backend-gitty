@@ -5,10 +5,39 @@ function renderIsLoggedOut() {
     window.location.assign('/api/v1/users/login');
   });
 
-  document.getElementById('root').appendChild(button);
+  const root = document.getElementById('root');
+
+  root.appendChild(button);
+}
+const ul = document.createElement('ul');
+
+async function getAllTweets() {
+  // const root = document.getElementById('root')
+  //create a UL to append to the root element
+  ul.textContent = '';
+  //get all tweets post endpoint
+  const res = await fetch('/api/v1/posts/');
+  const posts = await res.json();
+  console.log(posts);
+  const postLi = posts.reverse().map((post) => {
+    const li = document.createElement('li');
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.name = post.id;
+    li.textContent = post.post;
+    li.appendChild(deleteButton);
+    deleteButton.addEventListener('click', async (e) => {
+      await fetch(`/api/v1/posts/${e.target.name}`, {
+        method: 'DELETE',
+      });
+      await getAllTweets();
+    });
+    ul.appendChild(li);
+  });
+  document.getElementById('root').appendChild(ul);
 }
 
-function renderIsLoggedIn(user) {
+async function renderIsLoggedIn(user) {
   const root = document.getElementById('root');
   const p = document.createElement('p');
   p.textContent = user.username;
@@ -32,12 +61,14 @@ function renderIsLoggedIn(user) {
       },
       body: JSON.stringify({ post: text }),
     });
+    await getAllTweets();
   });
 
   form.appendChild(textarea);
   form.appendChild(button);
 
   root.appendChild(form);
+  await getAllTweets();
 }
 
 async function main() {
