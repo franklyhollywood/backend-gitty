@@ -1,31 +1,54 @@
+//GOES IN IS LOGGEDOUT.JSX
 function renderIsLoggedOut() {
+  //Creates a button.
   const button = document.createElement('button');
+  //button says what on it?
   button.textContent = 'Login with GitHub';
+  //add eventlistenener to the button so that when clicked it goes....
   button.addEventListener('click', () => {
+    //here....
     window.location.assign('/api/v1/users/login');
   });
-
+  // Where on the page is the button going to show?
   const root = document.getElementById('root');
-
+  //append the button to the root element as a child of that element.
   root.appendChild(button);
 }
+//GOES IN SHOWALLTWEETS.jsx
+async function logOut() {
+  const button = document.createElement('button');
+  button.textContent = 'LogOut';
+  button.addEventListener('click', async (e) => {
+    await fetch(`/api/v1/users/sessions/${e.target.name}`, {
+      method: 'DELETE',
+    });
+    window.location.assign('/');
+  });
+  const root = document.getElementById('root');
+  root.appendChild(button);
+}
+// why is this outside of the function?  Is this why my button "jumps"?
 const ul = document.createElement('ul');
-
+//THIS FUNCTION GOES IN SHOWTWEETS.JSX
 async function getAllTweets() {
-  // const root = document.getElementById('root')
-  //create a UL to append to the root element
+  //Why is this line here?
   ul.textContent = '';
-  //get all tweets post endpoint
+  //Run to the database and get all the posts for this user:
   const res = await fetch('/api/v1/posts/');
+  //Not sure what this line is doing?
   const posts = await res.json();
-  console.log(posts);
+  //lets map through all the posts and display them on the page:
+  //and we are showing them in reverse order:
   const postLi = posts.reverse().map((post) => {
     const li = document.createElement('li');
     const deleteButton = document.createElement('button');
     deleteButton.textContent = 'Delete';
+    //Why this line?
     deleteButton.name = post.id;
+    //put each post in an LI:
     li.textContent = post.post;
     li.appendChild(deleteButton);
+    //I am not sure I understand the e.target.name part....
     deleteButton.addEventListener('click', async (e) => {
       await fetch(`/api/v1/posts/${e.target.name}`, {
         method: 'DELETE',
@@ -36,7 +59,7 @@ async function getAllTweets() {
   });
   document.getElementById('root').appendChild(ul);
 }
-
+//THIS FUNCTION GOES IN: SHOWTWEETS.JSX
 async function renderIsLoggedIn(user) {
   const root = document.getElementById('root');
   const p = document.createElement('p');
@@ -69,7 +92,9 @@ async function renderIsLoggedIn(user) {
 
   root.appendChild(form);
   await getAllTweets();
+  await logOut();
 }
+//THIS FUNCTION GOES IN SHOWTWEETS.JSX:
 
 async function main() {
   try {
