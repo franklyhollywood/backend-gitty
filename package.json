@@ -7,10 +7,8 @@
   "scripts": {
     "test": "jest --verbose --runInBand --testLocationInResults --setupFiles dotenv/config",
     "test:watch": "npm run test -- --watch",
-    "start-react": "react-scripts start",
     "start": "node -r dotenv/config server.js",
     "start:watch": "nodemon -r dotenv/config server.js",
-    "test-react": "react-scripts test",
     "setup-db": "node -r dotenv/config setup-db.js",
     "setup-heroku": "heroku run npm run setup-db"
   },
@@ -36,6 +34,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "cross-fetch": "^3.1.5",
     "dotenv": "^14.2.0",

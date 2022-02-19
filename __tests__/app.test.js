@@ -2,7 +2,7 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
-const UserService = require('../lib/services/UserService.js');
+// const UserService = require('../lib/services/UserService.js');
 
 const agent = request.agent(app);
 jest.mock('../lib/utils/user');
@@ -29,7 +29,7 @@ describe('backend-gitty routes', () => {
     );
   });
 
-  it('should login and redirect users to /api/v1/users/dashboard', async () => {
+  it('should login and redirect users to frontend', async () => {
     const res = await request
       .agent(app)
       .get('/api/v1/users/login/callback?code=42')

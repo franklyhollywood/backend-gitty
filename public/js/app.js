@@ -27,10 +27,9 @@ async function logOut() {
   const root = document.getElementById('root');
   root.appendChild(button);
 }
-// why is this outside of the function?  Is this why my button "jumps"?
-const ul = document.createElement('ul');
-//THIS FUNCTION GOES IN SHOWTWEETS.JSX
+
 async function getAllTweets() {
+  const ul = document.createElement('ul');
   //Why is this line here?
   ul.textContent = '';
   //Run to the database and get all the posts for this user:
